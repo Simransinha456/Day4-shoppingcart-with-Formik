@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { supabase } from '../Database/supabaseClient';
+import { Navbar } from '../Navbar/Loadable';
 
 interface Item {
   name: string;
@@ -43,6 +44,7 @@ export const HomePage: React.FC<HomeProps> = ({ getShopping, shopping }) => {
 
   return (
     <>
+      <Navbar />
       <GridContainer>
         {items.map((item, index) => (
           <ItemWrapper key={index}>

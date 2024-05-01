@@ -47,7 +47,7 @@ export function App() {
       >
         <meta name="description" content="A React Boilerplate application" />
       </Helmet>
-      <Navbar />
+      {/* <Navbar /> */}
 
       <Routes>
         <Route

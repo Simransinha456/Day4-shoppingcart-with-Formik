@@ -3,11 +3,14 @@ import styled from 'styled-components/macro';
 import { Formik, Form, Field } from 'formik';
 import { LoginValidation } from './LoginValidation';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../Database/supabaseClient';
 
 interface Props {}
 
 export const Login = memo((props: Props) => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
 
   const initialValues = {
     name: '',
@@ -15,17 +18,30 @@ export const Login = memo((props: Props) => {
     password: '',
   };
 
+  const handleLogin = async (values, { resetForm }) => {
+    console.log(values);
+    // alert(JSON.stringify(values, null, 2));
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: values.email,
+      password: values.password,
+    });
+    if (error) {
+      alert(error.message);
+      console.log(data); // it will show name, email, password in console
+    } else {
+      alert('Login Successfull');
+      resetForm();
+      navigate('/');
+    }
+  };
+
   return (
     <StyledDiv>
-      <h2>{t('Login Form')}</h2>
+      <h2 className="head">{t('Login Form')}</h2>
       <Formik
         initialValues={initialValues}
         validationSchema={LoginValidation}
-        onSubmit={(values, { resetForm }) => {
-          console.log(values);
-          alert(JSON.stringify(values, null, 2));
-          resetForm();
-        }}
+        onSubmit={handleLogin}
       >
         {({ errors }) => (
           <StyledForm>
@@ -53,13 +69,19 @@ const StyledDiv = styled.div`
   align-items: center;
   font-family: Avenir, sans-serif;
   background-color: #f0f0f0;
-  height: 91vh;
+  height: 100vh;
+
+  h2 {
+    margin-top: 50px;
+    margin-bottom: -20px;
+  }
 `;
 
 const StyledForm = styled(Form)`
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 50px;
 `;
 
 const StyledLabel = styled.label`

@@ -18,23 +18,27 @@ export const Signup = memo((props: Props) => {
   };
 
   const handleSubmit = async (values, { resetForm }) => {
-    console.log(values);
+    // console.log(values);
     alert(JSON.stringify(values, null, 2));
     resetForm();
 
     //supabase-------
-    const { data, error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-      options: {
-        emailRedirectTo: 'http://localhost:3000/login',
-      },
-    });
-    console.log(data);
-    if (error) {
-      alert(error.message);
-    } else {
-      alert('Successful');
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          emailRedirectTo: 'http://localhost:3000/login',
+        },
+      });
+      console.log(data);
+      if (error) {
+        alert(error.message);
+      } else {
+        alert('success! check email for verification link');
+      }
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -81,7 +85,7 @@ const StyledDiv = styled.div`
   align-items: center;
   font-family: system-ui;
   background-color: #f0f0f0;
-  height: 91vh;
+  height: 100vh;
   overflow: hidden;
 `;
 

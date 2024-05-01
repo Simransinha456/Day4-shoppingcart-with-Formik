@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { supabase } from '../Database/supabaseClient'; // Remove .ts extension
 import { useNavigate } from 'react-router-dom';
+import { Navbar } from '../Navbar/Loadable';
 
 interface Props {}
 
@@ -28,6 +29,7 @@ export const Create: React.FC<Props> = () => {
 
   return (
     <StyledWrapper>
+      <Navbar />
       <StyledHeading>Create item</StyledHeading>
       <StyledForm onSubmit={handleSubmit}>
         <StyledInput
