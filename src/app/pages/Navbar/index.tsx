@@ -1,11 +1,29 @@
 import React, { memo } from 'react';
 import styled from 'styled-components/macro';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../Database/supabaseClient';
 
 interface Props {}
 
 export const Navbar = memo((props: Props) => {
   const { t, i18n } = useTranslation();
+  const [token, setToken] = React.useState('');
+
+  React.useEffect(() => {
+    const fetchToken = async () => {
+      const authToken = await supabase.auth.getSession();
+      setToken(authToken?.data?.session?.access_token || '');
+    };
+
+    fetchToken();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    sessionStorage.clear();
+    localStorage.clear();
+    // navigate('/login');
+  };
 
   return (
     <StyledNavbar>
@@ -22,7 +40,13 @@ export const Navbar = memo((props: Props) => {
               <a href="/create">{t('Create Item')}</a>
             </li>
             <li>
-              <a href="/login">{t('Login/Register')}</a>
+              {token ? (
+                <a href="/login" onClick={handleLogout}>
+                  {t('Logout')}
+                </a>
+              ) : (
+                <a href="/login">{t('Login')}</a>
+              )}
             </li>
           </ul>
         </nav>

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { useEffect, memo } from 'react';
 import styled from 'styled-components/macro';
 import { Formik, Form, Field } from 'formik';
 import { LoginValidation } from './LoginValidation';
@@ -8,9 +8,25 @@ import { supabase } from '../Database/supabaseClient';
 
 interface Props {}
 
-export const Login = memo((props: Props) => {
+export const Login = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   getSession();
+  // }, []);
+
+  // const getSession = async () => {
+  //   try {
+  //     const { data: session, error } = await supabase.auth.getSession();
+  //     if (error) {
+  //       throw error;
+  //     }
+  //     console.log('Session:', session);
+  //   } catch (error) {
+  //     console.error('Error getting session:', error);
+  //   }
+  // };
 
   const initialValues = {
     name: '',
@@ -21,15 +37,21 @@ export const Login = memo((props: Props) => {
   const handleLogin = async (values, { resetForm }) => {
     console.log(values);
     // alert(JSON.stringify(values, null, 2));
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email: values.email,
       password: values.password,
     });
+
     if (error) {
       alert(error.message);
       console.log(data); // it will show name, email, password in console
     } else {
       alert('Login Successfull');
+      if (data.user) {
+        localStorage.setItem('userId', data.user.id);
+      }
+
       resetForm();
       navigate('/');
     }
@@ -61,7 +83,7 @@ export const Login = memo((props: Props) => {
       </Formik>
     </StyledDiv>
   );
-});
+};
 
 const StyledDiv = styled.div`
   display: flex;

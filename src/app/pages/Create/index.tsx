@@ -4,15 +4,24 @@ import { supabase } from '../Database/supabaseClient'; // Remove .ts extension
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../Navbar/Loadable';
 
-interface Props {}
+interface Props {
+  getShopping: () => Promise<void>;
+}
 
-export const Create: React.FC<Props> = () => {
+export const Create: React.FC<Props> = ({ getShopping }) => {
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    // we are retrieving directly the user data from supabase not with any localstorage
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    console.log(user);
+    navigate('/');
 
     // Insert data into supabase
     const { data, error } = await supabase
@@ -23,6 +32,7 @@ export const Create: React.FC<Props> = () => {
       console.error('Error inserting:', error);
     } else {
       console.log('Inserted:', data);
+      await getShopping();
       navigate('/');
     }
   };
