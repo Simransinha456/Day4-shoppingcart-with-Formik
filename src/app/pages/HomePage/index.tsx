@@ -64,7 +64,6 @@ export const HomePage: React.FC<HomeProps> = ({ getShopping, shopping }) => {
     };
     fetchData();
   }, []);
-
   const handleDelete = async (unique_id: string) => {
     try {
       // Call the getUser method to get user information
