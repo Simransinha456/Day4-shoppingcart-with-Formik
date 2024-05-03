@@ -37,7 +37,7 @@ export const HomePage: React.FC<HomeProps> = ({ getShopping, shopping }) => {
                 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmbGNtdmx3eXppdmpzZ3F4bHp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQzODQzMzQsImV4cCI6MjAyOTk2MDMzNH0.HVHh7QM0w57rLTzDayn1ktEss_wrSi1ruOuhBxxSdQM',
 
               authorization: `Bearer ${token}`,
-              // "priority": "u=1, i",
+              priority: 'u=1, i',
               'sec-ch-ua':
                 '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
               'sec-ch-ua-mobile': '?0',
@@ -64,28 +64,49 @@ export const HomePage: React.FC<HomeProps> = ({ getShopping, shopping }) => {
     };
     fetchData();
   }, []);
+
+  /// Deleting the items-----------------------------
+
   const handleDelete = async (unique_id: string) => {
     try {
-      // Call the getUser method to get user information
-      const { error: userError } = await supabase.auth.getUser();
-
-      if (userError) {
-        throw new Error('Error getting user information');
+      const authToken = await supabase.auth.getSession();
+      const token = authToken?.data?.session?.access_token;
+      console.log(token, 'abcdeertyu');
+      console.log(unique_id, 'abcder');
+      const response = await fetch(
+        `https://fflcmvlwyzivjsgqxlzw.supabase.co/functions/v1/deleteitem/${unique_id}`,
+        {
+          headers: {
+            accept: '*/*',
+            'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            apikey:
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmbGNtdmx3eXppdmpzZ3F4bHp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQzODQzMzQsImV4cCI6MjAyOTk2MDMzNH0.HVHh7QM0w57rLTzDayn1ktEss_wrSi1ruOuhBxxSdQM',
+            authorization: `Bearer ${token}`,
+            // "priority": "u=1, i",
+            'sec-ch-ua':
+              '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"macOS"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'cross-site',
+            'x-client-info': 'supabase-js-web/2.43.0',
+          },
+          referrer: 'http://localhost:3000/',
+          referrerPolicy: 'strict-origin-when-cross-origin',
+          method: 'DELETE',
+          mode: 'cors',
+          credentials: 'omit',
+        },
+      );
+      console.log(response);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      const { data: shoppingcartData, error: deleteError } = await supabase
-        .from('shoppingcart')
-        .delete()
-        .eq('unique_id', unique_id);
-
-      if (deleteError) {
-        console.error('Error deleting item:', deleteError);
-      } else {
-        console.log('Deleted item:', unique_id);
-        setItems(items.filter(item => item.unique_id !== unique_id));
-      }
-    } catch (error: any) {
-      console.error('Error deleting item:', error.message);
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error('Error deleting data:', error);
     }
   };
 

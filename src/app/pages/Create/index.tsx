@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { supabase } from '../Database/supabaseClient'; // Remove .ts extension
+import { supabase } from '../Database/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../Navbar/Loadable';
 
@@ -16,24 +16,50 @@ export const Create: React.FC<Props> = ({ getShopping }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // we are retrieving directly the user data from supabase not with any localstorage
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    console.log(user);
-    navigate('/');
+    try {
+      const authToken = await supabase.auth.getSession();
+      const token = authToken?.data?.session?.access_token;
 
-    // Insert data into supabase
-    const { data, error } = await supabase
-      .from('shoppingcart')
-      .insert([{ name, image: imageUrl }]);
+      const dataToCreate = {
+        name: name,
+        image: imageUrl,
+      };
 
-    if (error) {
-      console.error('Error inserting:', error);
-    } else {
-      console.log('Inserted:', data);
+      const response = await fetch(
+        'https://fflcmvlwyzivjsgqxlzw.supabase.co/functions/v1/createitem',
+        {
+          headers: {
+            accept: '*/*',
+            'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            apikey:
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmbGNtdmx3eXppdmpzZ3F4bHp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQzODQzMzQsImV4cCI6MjAyOTk2MDMzNH0.HVHh7QM0w57rLTzDayn1ktEss_wrSi1ruOuhBxxSdQM', // Replace with your Supabase API key
+            authorization: `Bearer ${token}`,
+            // "priority": "u=1, i",
+            'sec-ch-ua':
+              '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"macOS"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'cross-site',
+            'x-client-info': 'supabase-js-web/2.43.0',
+          },
+          referrer: 'http://localhost:3000/',
+          referrerPolicy: 'strict-origin-when-cross-origin',
+          body: JSON.stringify(dataToCreate),
+          method: 'POST',
+          mode: 'cors',
+          credentials: 'omit',
+        },
+      );
+
+      const data = await response.json();
+      console.log(data);
+
       await getShopping();
-      navigate('/');
+      navigate('/'); // navigate to home page after creating data
+    } catch (error) {
+      console.error('Error creating data:', error);
     }
   };
 
